@@ -1,5 +1,5 @@
 import streamlit as st
-import joblib
+import joblib as jb
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -49,6 +49,9 @@ model_choice = st.sidebar.selectbox(
     ]
 )
 
+# model directory
+model_dir = "models"
+
 # Model file mapping
 MODEL_FILES = {
     "Logistic Regression": "models/logistic_model.pkl",
@@ -56,7 +59,7 @@ MODEL_FILES = {
     "K-Nearest Neighbors": "models/knn_model.pkl",
     "Naive Bayes": "models/nb_model.pkl",
     "Random Forest": "models/rf_model.pkl",
-    "XGBoost": "models/xgboost_model.pkl"
+    "XGBoost": "models/xgb_model.pkl"
 }
 
 # Load selected model
@@ -64,7 +67,7 @@ MODEL_FILES = {
 def load_model(model_path):
     """Load a saved model from disk"""
     try:
-        return joblib.load(model_path)
+        return jb.load(model_path)
     except Exception as e:
         st.error(f"Error loading model: {e}")
         return None
@@ -85,13 +88,15 @@ st.sidebar.markdown("---")
 def preprocess_data(df):
     """Apply same preprocessing as training notebook"""
     
-    scaler = joblib.load("models/scaler.pkl")
-    training_cols = joblib.load("models/training_columns.pkl")
+    scaler_loaded = jb.load(os.path.join(model_dir, 'scaler.pkl'))
+    feature_names = jb.load(os.path.join(model_dir, 'feature_names.pkl'))
 
     # One-hot encode categorical_cols, drop originals
     categorical_cols = ['job', 'marital', 'education', 'default', 'housing', 'loan', 
                     'contact','poutcome']
-
+    num_cols = ['age', 'duration', 'campaign', 'pdays', 'previous',
+                'emp.var.rate', 'cons.price.idx', 'cons.conf.idx', 'euribor3m', 'nr.employed']
+    
     df_processed = df.copy()
     
     # If raw dataset contains target
@@ -105,11 +110,10 @@ def preprocess_data(df):
     df_processed = pd.get_dummies(df_processed, columns=['month', 'day_of_week'], drop_first=True)
     
     # Align columns with training data
-    df_processed = df_processed.reindex(columns=training_cols, fill_value=0)
+    df_processed = df_processed.reindex(columns=feature_names, fill_value=0)
     
-    # Scale numeric columns
-    num_cols = df_processed.select_dtypes(include=['int64', 'float64']).columns
-    df_processed[num_cols] = scaler.transform(df_processed[num_cols])
+    # Scale ONLY the original numerical columns
+    df_processed[num_cols] = scaler_loaded.transform(df_processed[num_cols])
     
     return df_processed
 
@@ -153,7 +157,7 @@ def calc_metrics(y_true, y_pred, y_pred_proba=None):
         "F1 Score": f1,
         "MCC": mcc
     }
-
+ 
 # ========================================
 # DISPLAY METRICS FUNCTION
 # ========================================
@@ -285,9 +289,10 @@ if uploaded_file is not None:
         
         if has_labels:
             st.info("ℹ️ Target column 'y' found - Model will be evaluated")
-            test_data = preprocess_data(test_data)
-            X_test = test_data.drop(columns=['y'])
-            y_test = test_data['y']
+            y_test = test_data['y']        
+            X_raw = test_data.drop(columns=['y'])
+    
+            X_test = preprocess_data(X_raw)  # ✅ preprocess ONLY features
         else:
             st.warning("⚠️ No target column 'y' found - Only predictions will be generated")
             X_test = preprocess_data(test_data)
