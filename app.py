@@ -306,9 +306,7 @@ if uploaded_file is not None:
                     
                     st.pyplot(fig)
                     plt.close()
-                    
-                    st.markdown("---")
-                                    
+                                                        
                     # If labels exist, calculate and display metrics
                     if has_labels and y_test is not None:
                         st.markdown("---")
