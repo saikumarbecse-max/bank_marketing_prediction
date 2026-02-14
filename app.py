@@ -81,6 +81,32 @@ else:
 st.sidebar.markdown("---")
 
 # ========================================
+# Preprocess the data
+def preprocess_data(df):
+    """Apply same preprocessing as training notebook"""
+    
+    scaler = joblib.load("models/scaler.pkl")
+    training_cols = joblib.load("models/training_columns.pkl")
+
+    df_processed = df.copy()
+    
+    # If raw dataset contains target
+    if 'y' in df_processed.columns:
+        df_processed = df_processed.drop(columns=['y'])
+    
+    # One-hot encode (same as notebook)
+    df_processed = pd.get_dummies(df_processed, drop_first=True)
+    
+    # Align columns with training data
+    df_processed = df_processed.reindex(columns=training_cols, fill_value=0)
+    
+    # Scale numeric columns
+    num_cols = df_processed.select_dtypes(include=['int64', 'float64']).columns
+    df_processed[num_cols] = scaler.transform(df_processed[num_cols])
+    
+    return df_processed
+
+# ========================================
 # METRICS CALCULATION FUNCTION
 # ========================================
 def calc_metrics(y_true, y_pred, y_pred_proba=None):
@@ -252,11 +278,12 @@ if uploaded_file is not None:
         
         if has_labels:
             st.info("ℹ️ Target column 'y' found - Model will be evaluated")
+            test_data = preprocess_data(test_data)
             X_test = test_data.drop(columns=['y'])
             y_test = test_data['y']
         else:
             st.warning("⚠️ No target column 'y' found - Only predictions will be generated")
-            X_test = test_data
+            X_test = preprocess_data(test_data)
             y_test = None
         
         # Generate predictions button
