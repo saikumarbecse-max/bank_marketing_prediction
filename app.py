@@ -308,32 +308,7 @@ if uploaded_file is not None:
                     plt.close()
                     
                     st.markdown("---")
-                    
-                    # Show predictions table
-                    with st.expander("📋 View All Predictions"):
-                        results_df = X_test.copy()
-                        results_df['Predicted'] = y_pred
-                        results_df['Predicted_Label'] = results_df['Predicted'].map({0: 'No', 1: 'Yes'})
-                        
-                        if y_pred_proba is not None:
-                            results_df['Probability'] = y_pred_proba
-                        
-                        if has_labels:
-                            results_df['Actual'] = y_test.values
-                            results_df['Actual_Label'] = results_df['Actual'].map({0: 'No', 1: 'Yes'})
-                            results_df['Correct'] = (results_df['Predicted'] == results_df['Actual'])
-                        
-                        st.dataframe(results_df, use_container_width=True)
-                        
-                        # Download predictions
-                        csv = results_df.to_csv(index=False)
-                        st.download_button(
-                            label="📥 Download Predictions as CSV",
-                            data=csv,
-                            file_name=f'predictions_{model_choice.replace(" ", "_").lower()}.csv',
-                            mime='text/csv'
-                        )
-                    
+                                    
                     # If labels exist, calculate and display metrics
                     if has_labels and y_test is not None:
                         st.markdown("---")
