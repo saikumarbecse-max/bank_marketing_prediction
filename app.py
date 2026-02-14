@@ -13,6 +13,8 @@ from sklearn.metrics import (
 import warnings 
 warnings.filterwarnings('ignore')
 
+threshold = 0.5  # Default threshold for binary classification
+
 # ========================================
 # PAGE CONFIGURATION
 # ========================================
@@ -75,59 +77,8 @@ else:
     st.sidebar.error("❌ Failed to load model")
     st.stop()
 
-# Threshold selection (optional - only for demonstration)
-st.sidebar.markdown("---")
-st.sidebar.subheader("🎯 Prediction Threshold")
-st.sidebar.caption("Default: 0.5 (recommended)")
-
-use_custom_threshold = st.sidebar.checkbox("Use custom threshold", value=False)
-if use_custom_threshold:
-    threshold = st.sidebar.slider(
-        "Select threshold",
-        min_value=0.3,
-        max_value=0.7,
-        value=0.5,
-        step=0.05
-    )
-else:
-    threshold = 0.5
 
 st.sidebar.markdown("---")
-
-# ========================================
-# INFORMATION SECTION
-# ========================================
-with st.expander("ℹ️ About This Application"):
-    st.markdown("""
-    ### Bank Marketing Prediction Application
-    
-    This application predicts whether a customer will subscribe to a term deposit 
-    based on the Bank Marketing dataset from UCI Machine Learning Repository.
-    
-    **How to use:**
-    1. Select a machine learning model from the sidebar
-    2. Upload your test data (CSV format)
-    3. Click "Generate Predictions" to see results
-    
-    **Expected CSV format:**
-    - Must contain all preprocessed features (same as training data)
-    - Optional: Include 'y' column (0/1) for model evaluation
-    - Features should be already encoded and scaled
-    
-    **Models Available:**
-    - Logistic Regression
-    - Decision Tree
-    - K-Nearest Neighbors (kNN)
-    - Naive Bayes
-    - Random Forest
-    - XGBoost
-    
-    **Evaluation Metrics:**
-    - Accuracy, Precision, Recall, F1 Score
-    - AUC-ROC, MCC (Matthews Correlation Coefficient)
-    - Confusion Matrix
-    - Classification Report
-    """)
 
 # ========================================
 # METRICS CALCULATION FUNCTION
@@ -284,30 +235,6 @@ with col1:
 with col2:
     st.markdown("**File Requirements:**")
     st.caption("✅ CSV format")
-    st.caption("✅ Preprocessed features")
-    st.caption("✅ Optional: 'y' column for evaluation")
-
-# ========================================
-# SAMPLE DATA SECTION
-# ========================================
-with st.expander("📖 Expected Data Format"):
-    st.markdown("""
-    ### Test Data Format
-    
-    Your CSV file should contain:
-    - All preprocessed features (one-hot encoded categorical variables)
-    - Scaled numerical features
-    - Optional: 'y' column with values 0 or 1
-    
-    **Example columns:**
-    ```
-    age, duration, campaign, pdays, previous, emp.var.rate, 
-    cons.price.idx, cons.conf.idx, euribor3m, nr.employed,
-    job_admin., job_blue-collar, ..., y
-    ```
-    
-    **Note:** The features must match exactly with the training data format.
-    """)
 
 # ========================================
 # PREDICTION AND EVALUATION
@@ -319,9 +246,6 @@ if uploaded_file is not None:
         
         st.success(f"✅ File uploaded successfully! Shape: {test_data.shape}")
         
-        # Show data preview
-        with st.expander("👀 View Data Preview (First 5 rows)"):
-            st.dataframe(test_data.head())
         
         # Check if target column exists
         has_labels = 'y' in test_data.columns
@@ -428,31 +352,3 @@ if uploaded_file is not None:
 else:
     st.info("👆 Please upload a CSV file to begin predictions")
 
-# ========================================
-# SIDEBAR - ADDITIONAL INFO
-# ========================================
-st.sidebar.markdown("---")
-st.sidebar.header("ℹ️ About")
-st.sidebar.info("""
-**Bank Marketing Prediction**
-
-This application predicts whether a client will subscribe to a term deposit 
-based on marketing campaign data.
-
-**Models Available:**
-- Logistic Regression
-- Decision Tree
-- K-Nearest Neighbors
-- Naive Bayes
-- Random Forest
-- XGBoost
-
-**Dataset:** Bank Marketing Dataset (UCI ML Repository)
-
-**Course:** M.Tech (AIML/DSE)  
-**Assignment:** ML Assignment 2
-""")
-
-st.sidebar.markdown("---")
-st.sidebar.caption("💡 Tip: Use threshold 0.5 for fair comparison across models")
-st.sidebar.caption("📊 All 6 metrics calculated: Accuracy, AUC, Precision, Recall, F1, MCC")
