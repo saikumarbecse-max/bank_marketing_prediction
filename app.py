@@ -88,6 +88,10 @@ def preprocess_data(df):
     scaler = joblib.load("models/scaler.pkl")
     training_cols = joblib.load("models/training_columns.pkl")
 
+    # One-hot encode categorical_cols, drop originals
+    categorical_cols = ['job', 'marital', 'education', 'default', 'housing', 'loan', 
+                    'contact','poutcome']
+
     df_processed = df.copy()
     
     # If raw dataset contains target
@@ -95,7 +99,10 @@ def preprocess_data(df):
         df_processed = df_processed.drop(columns=['y'])
     
     # One-hot encode (same as notebook)
-    df_processed = pd.get_dummies(df_processed, drop_first=True)
+    df_processed = pd.get_dummies(df_processed, columns=categorical_cols, drop_first=False)
+
+    # One-hot encode 'month' and 'day_of_week' with drop_first=True
+    df_processed = pd.get_dummies(df_processed, columns=['month', 'day_of_week'], drop_first=True)
     
     # Align columns with training data
     df_processed = df_processed.reindex(columns=training_cols, fill_value=0)
