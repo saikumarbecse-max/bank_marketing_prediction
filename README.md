@@ -23,8 +23,7 @@ b. Dataset description
       Class                  Count        Percentage
       No subscription (0)    36,548          88.7%
       Subscribed (1)         4,640           11.3%
-      
-      Imbalance Ratio7.88:1    
+    Imbalance Ratio7.88:1    
 
 c. Models used:
 
