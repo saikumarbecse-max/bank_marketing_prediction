@@ -19,10 +19,10 @@ b. Dataset description
       Features after Preprocessing: 62 (after one-hot encoding)
       Target Variable: y (binary: yes/no for term deposit subscription)
       Problem Type: Binary Classification
-    Class Distribution
-      Class                  Count        Percentage
-      No subscription (0)    36,548          88.7%
-      Subscribed (1)         4,640           11.3%
+| Class                   | Count  | Percentage |
+|-------------------------|--------|------------|
+| No subscription (0)     | 36,548 | 88.7%      |
+| Subscribed (1)          | 4,640  | 11.3%      |
     Imbalance Ratio7.88:1    
 
 c. Models used:
